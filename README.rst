@@ -7,11 +7,11 @@ suitable for importing to GnuCash. Plugin for ofxstatement parses a
 particular proprietary bank statement format and produces common data
 structure, that is then formatted into an OFX file.
 
-`ofxstatement-russian`_ provides some Russian banks plugins for ofxstatement.
+`ofxstatement-ru`_ provides some Russian banks plugins for ofxstatement.
 
 
 .. _ofxstatement: https://github.com/kedder/ofxstatement
-.. _ofxstatement-russian: https://github.com/gerasiov/ofxstatement-russian
+.. _ofxstatement-ru: https://github.com/senz/ofxstatement-ru
 
 Supported banks:
 
@@ -20,6 +20,7 @@ Supported banks:
 * SberBank (http://sbrf.ru) plugins 'sberbank_csv', 'sberbank_txt'
 * AlfaBank (https://www.alfabank.ru) plugin 'alfabank'
 * VTB (https://www.vtb.ru) plugin 'vtb'
+* Raiffeisen (https://www.raiffeisen.ru) plugin 'raiffeisen'
 
 
 Avangard
@@ -51,6 +52,10 @@ VTB
 -------
 
 CSV statement for debit card.
+
+Raiffeisen
+-------
+TODO: Add description
 
 
 Plugin configuration parameters
@@ -133,10 +138,14 @@ user_date
         if 'true' then transaction date will be set to the date when transaction is created (so called user date)
         rather then record date.
 
+raiffeisen
+--------
+TODO: Add description
+
 Development
 ===========
 
-Project is targeting python 3 (3.6 for sure as current widespread version) and
+Project is targeting python 3 (3.9 for sure as current widespread version) and
 pytest is used for testing.
 
 Development setup is simple:
@@ -144,18 +153,10 @@ Development setup is simple:
 1. Create virtual environment and activate it
 .. code-block:: bash
 
-    virtualenv .venv
+    pipenv sync --dev
+    pipenv shell
 
-    # activate it according to your OS specifics
-
-2. Install dependencies. It will download everything you need to develop and write tests
-.. code-block:: bash
-
-    pip install -r requirements.txt
-
-    python setup.py develop
-
-3. Run tests using pytest
+2. Run tests using pytest
 .. code-block:: bash
 
     pytest
@@ -167,7 +168,7 @@ Authors
 |  Copyright (c) 2013 Andrey Lebedev <andrey@lebedev.lt>
 |  Copyright (c) 2016-2017 Alexander Gerasiov <gq@cs.msu.su>
 |  Copyright (c) 2017 Dmitry Pavlov <zeldigas@gmail.com>
-|
+|  Copyright (c) 2024 Konstantin Romanov <kosta-codes@proton.me>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3 as
