@@ -1,0 +1,82 @@
+[project]
+name = "ofxstatement-ru"
+dynamic = ["version"]
+authors = [
+    { name = "Andrey Lebedev", email = "andrey@lebedev.lt" },
+    { name = "Alexander Gerasiov", email = "gq@cs.msu.su" },
+    { name = "Dmitry Pavlov", email = "zeldigas@gmail.com" },
+    { name = "Konstantin Romanov", email = "kosta-codes@proton.me" },
+]
+description = "ofxstatement plugins for Russian banks"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "GPL-3.0"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Natural Language :: Russian",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+]
+[tool.pytest.ini_options]
+addopts = "--strict-markers"
+markers = ["integration: marks tests as integration tests"]
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
+[tool.setuptools_scm]
+[tool.poetry]
+name = "ofxstatement-ru"
+version = "0.0.0"
+description = "ofxstatement plugins for Russian banks"
+authors = [
+    "Konstantin Romanov <kosta-codes@proton.me>",
+    "Andrey Lebedev <andrey@lebedev.lt>",
+    "Alexander Gerasiov <gq@cs.msu.su>",
+    "Dmitry Pavlov <zeldigas@gmail.com>",
+]
+maintainers = ["Konstantin Romanov <kosta-codes@proton.me>"]
+readme = "README.rst"
+license = "GPL-3.0"
+repository = "https://github.com/senz/ofxstatement-ru"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Natural Language :: Russian",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+]
+keywords = ["ofxstatement", "bank", "plugin", "russian", "sberbank", "tinkoff", "alfabank", "vtb", "raiffeisen", "avangard"]
+packages = [
+    {include = "ofxstatement_ru", from = "src"},
+]
+[tool.poetry.dependencies]
+python = ">=3.9,<4.0"
+ofxstatement = "^0.9.1"
+[tool.poetry.dev-dependencies]
+pytest = "~8.2.0"
+pytest-cov = "~5.0.0"
+prospector = "*"
+bandit = "*"
+setuptools = "~69.5.1"
+build = "~1.2.1"
+black = "*"
+pylint = "*"
+[tool.poetry.extras]
+dev = ["pytest", "pytest-cov", "prospector", "bandit", "setuptools", "build", "black", "pylint"]
+[tool.poetry.plugins."ofxstatement"]
+alfabank = "ofxstatement_ru.alfabank:AlfabankPlugin"
+avangard = "ofxstatement_ru.avangard:AvangardPlugin"
+raiffeisen = "ofxstatement_ru.raiffeisen:RaiffeisenPlugin"
+sberbank_csv = "ofxstatement_ru.sberbank_csv:SberBankCSVPlugin"
+sberbank_txt = "ofxstatement_ru.sberbank_txt:SberBankTxtPlugin"
+tinkoff = "ofxstatement_ru.tinkoff:TinkoffPlugin"
+vtb = "ofxstatement_ru.vtb:VtbPlugin"
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^3.3.1"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"

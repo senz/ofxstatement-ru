@@ -1,4 +1,0 @@
-ofxstatement==0.7.1
-
-# test deps
-pytest==6.1.2

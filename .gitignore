@@ -10,3 +10,11 @@ eggs
 .project
 .pydevproject
 *.sublime*
+*.vscode
+dist/
+build/
+.venv/
+__pycache__/
+coverage.xml
+.pytest_cache/
+
