@@ -22,7 +22,7 @@ from datetime import datetime
 import re
 
 # file format options
-sb_encoding = 'cp1251'
+sb_encoding = "cp1251"
 
 
 class ParserState:
@@ -38,7 +38,7 @@ class ParserState:
         self.matchers.append([re.compile(reString), nextState, function])
 
     def run(self, line):
-        for (matcher, nextState, function) in self.matchers:
+        for matcher, nextState, function in self.matchers:
             match = matcher.match(line)
             if match:
                 if function:
@@ -61,7 +61,7 @@ class SberBankTxtStatementParser(StatementParser):
     account_fl_len = 0
 
     machine = {}
-    currentState = None
+    current_state = None
     internal = None
 
     def append(self, state):
@@ -87,18 +87,18 @@ class SberBankTxtStatementParser(StatementParser):
 
     def parseDate(self, string):
         rusMonths = {
-            u'ЯНВ': 1,
-            u'ФЕВ': 2,
-            u'МАР': 3,
-            u'АПР': 4,
-            u'МАЙ': 5,
-            u'ИЮН': 6,
-            u'ИЮЛ': 7,
-            u'АВГ': 8,
-            u'СЕН': 9,
-            u'ОКТ': 10,
-            u'НОЯ': 11,
-            u'ДЕК': 12,
+            "ЯНВ": 1,
+            "ФЕВ": 2,
+            "МАР": 3,
+            "АПР": 4,
+            "МАЙ": 5,
+            "ИЮН": 6,
+            "ИЮЛ": 7,
+            "АВГ": 8,
+            "СЕН": 9,
+            "ОКТ": 10,
+            "НОЯ": 11,
+            "ДЕК": 12,
         }
         return datetime(2000 + int(string[5:]), rusMonths[string[2:5]], int(string[:2]))
 
@@ -114,13 +114,13 @@ class SberBankTxtStatementParser(StatementParser):
         self.transaction.date = self.parseDate(match.group(3))
         self.transaction.memo = match.group(4)
         self.transaction.amount = float(match.group(5)) * (1 if match.group(6) else -1)
-        self.transaction.trntype = 'DEBIT' if match.group(6) else 'CREDIT'
+        self.transaction.trntype = "DEBIT" if match.group(6) else "CREDIT"
         if match.group(1).strip():
             self.account_id += match.group(1)
 
     def extractTransactionAppend(self, match):
-        first = match.group(1)[:self.account_fl_len]
-        second = match.group(1)[self.account_fl_len:]
+        first = match.group(1)[: self.account_fl_len]
+        second = match.group(1)[self.account_fl_len :]
         self.account_id += first
         self.transaction.memo += second
 
@@ -129,55 +129,58 @@ class SberBankTxtStatementParser(StatementParser):
         self.internal = {}
         self.fin = fin
 
-        self.currentState = 'init'
+        self.current_state = "init"
 
-        state = ParserState('init', self)
-        state.addMatcher(r"^.*ВАЛЮТА СЧЕТА.*$", 'currency')
+        state = ParserState("init", self)
+        state.addMatcher(r"^.*ВАЛЮТА СЧЕТА.*$", "currency")
 
-        state = ParserState('currency', self)
-        state.addMatcher(r"^\s*(\w{3})\s*$",
-                         'begin_balance',
-                         self.extractCurrency)
+        state = ParserState("currency", self)
+        state.addMatcher(r"^\s*(\w{3})\s*$", "begin_balance", self.extractCurrency)
 
-        state = ParserState('begin_balance', self)
-        state.addMatcher(r"^ОСТАТОК НА НАЧАЛО ПЕРИОДА:\s*(\d+\.\d{2})(\+)?\s*$",
-                         'table_header',
-                         self.extractBeginBalance)
-
-        state = ParserState('table_header', self)
-        state.addMatcher(r"^[-+]{80,}$", 'table_header2')
-
-        state = ParserState('table_header2', self)
-        state.addMatcher(r"^[-+]{80,}$", 'transaction')
-
-        state = ParserState('transaction', self)
-        state.addMatcher(r"^[-+]{80,}$", 'end_balance')
+        state = ParserState("begin_balance", self)
         state.addMatcher(
-            r"^(.*)\s*(\d{2}[А-Я]{3})\s+(\d{2}[А-Я]{3}\d{2})\s+\d{6}\s+(.*)\s\w{3}\s+\d*\.\d{2}\s+(\d*\.\d{2})(CR)?\s*$",
+            r"^ОСТАТОК НА НАЧАЛО ПЕРИОДА:\s*(\d+\.\d{2})(\+)?\s*$",
+            "table_header",
+            self.extractBeginBalance,
+        )
+
+        state = ParserState("table_header", self)
+        state.addMatcher(r"^[-+]{80,}$", "table_header2")
+
+        state = ParserState("table_header2", self)
+        state.addMatcher(r"^[-+]{80,}$", "transaction")
+
+        state = ParserState("transaction", self)
+        state.addMatcher(r"^[-+]{80,}$", "end_balance")
+        state.addMatcher(
+            r"^(.*)\s*(\d{2}[А-Я]{3})\s+(\d{2}[А-Я]{3}\d{2})\s+\d{6}\s+(.*)\s\w{3}\s+\d*\.\d{2}\s+(\d*\.\d{2})(CR)?\s*$",  # noqa: E501
             None,
-            self.extractTransaction)
+            self.extractTransaction,
+        )
         state.addMatcher(
             r"^(.*)\s*(\d{2}[А-Я]{3})\s+(\d{2}[А-Я]{3}\d{2})\s+\d{6}\s+(КОМИССИЯ)\s+(\d*\.\d{2})(CR)?\s*$",
             None,
-            self.extractTransaction)
+            self.extractTransaction,
+        )
         state.addMatcher(
             r"^(.*)\s*(\d{2}[А-Я]{3})\s+(\d{2}[А-Я]{3}\d{2})\s+\d{6}\s+(.*)\s(\d*\.\d{2})(CR)?\s*$",
             None,
-            self.extractTransaction)
+            self.extractTransaction,
+        )
         state.addMatcher(r".*ИТОГО ПО.*")
-        state.addMatcher(r"^(.+)\s*$",
-                         None,
-                         self.extractTransactionAppend)
+        state.addMatcher(r"^(.+)\s*$", None, self.extractTransactionAppend)
 
-        state = ParserState('end_balance', self)
-        state.addMatcher(r"^ОСТАТОК НА КОНЕЦ ПЕРИОДА:\s*(\d+\.\d{2})\+?\s*$",
-                         'table_header',
-                         self.extractEndBalance)
+        state = ParserState("end_balance", self)
+        state.addMatcher(
+            r"^ОСТАТОК НА КОНЕЦ ПЕРИОДА:\s*(\d+\.\d{2})\+?\s*$",
+            "table_header",
+            self.extractEndBalance,
+        )
 
     def run(self, line):
-        nextState = self.machine[self.currentState].run(line)
+        nextState = self.machine[self.current_state].run(line)
         if nextState:
-            self.currentState = nextState
+            self.current_state = nextState
 
     def parse(self):
         for line in self.fin:
@@ -187,13 +190,12 @@ class SberBankTxtStatementParser(StatementParser):
 
 
 class SberBankTxtPlugin(Plugin):
-    """SberBank TXT (http://sbrf.ru)
-    """
+    """SberBank TXT (http://sbrf.ru)"""
 
     def get_parser(self, fin):
-        f = open(fin, 'r', encoding=sb_encoding)
+        f = open(fin, "r", encoding=sb_encoding)
         parser = SberBankTxtStatementParser(f)
-        parser.statement.currency = self.settings.get('currency', None)
-        parser.statement.account_id = self.settings.get('account', None)
-        parser.statement.bank_id = self.settings.get('bank', 'SberBank')
+        parser.statement.currency = self.settings.get("currency", None)
+        parser.statement.account_id = self.settings.get("account", None)
+        parser.statement.bank_id = self.settings.get("bank", "SberBank")
         return parser

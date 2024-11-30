@@ -1,6 +1,6 @@
 import os.path
 
-SAMPLES_DIR = os.path.join(os.path.dirname(__file__), 'samples')
+SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "samples")
 
 
 def file_sample(name):

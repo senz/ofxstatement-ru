@@ -19,19 +19,26 @@ import csv
 import re
 from decimal import Decimal
 
-from ofxstatement import statement
+from ofxstatement.statement import Statement, StatementLine
 from ofxstatement.parser import StatementParser
 from ofxstatement.plugin import Plugin
 
 # Тип счёта;Номер счета;Валюта;Дата операции;Референс проводки;Описание операции;Приход;Расход;
 
 # file format options
-delimiter = ';'
-default_encoding = 'cp1251'
-fieldnames = ['acc_name', 'acc', 'currency', 'op_time', 'refnum', 'description', 'income', 'withdraw']
-type_map = {
-    u"Комиссия за ": 'SRVCHG'
-}
+delimiter = ";"
+default_encoding = "cp1251"
+fieldnames = [
+    "acc_name",
+    "acc",
+    "currency",
+    "op_time",
+    "refnum",
+    "description",
+    "income",
+    "withdraw",
+]
+type_map = {"Комиссия за ": "SRVCHG"}
 
 
 def parse_type(type, amount):
@@ -42,9 +49,9 @@ def parse_type(type, amount):
     result = None
 
     if amount > 0:
-        result = 'DEBIT'
+        result = "DEBIT"
     elif amount < 0:
-        result = 'CREDIT'
+        result = "CREDIT"
 
     return result
 
@@ -54,8 +61,8 @@ class AlfabankStatementParser(StatementParser):
 
     def __init__(self, fin):
         super().__init__()
-        self.date_format = '%d.%m.%y'
-        self.statement = statement.Statement()
+        self.date_format = "%d.%m.%y"
+        self.statement = Statement()
         self.fin = fin
         # Skip 1st row with column's headers
         self.fin.readline()
@@ -66,31 +73,33 @@ class AlfabankStatementParser(StatementParser):
         return csv.DictReader(self.fin, delimiter=delimiter, fieldnames=fieldnames)
 
     def parse_record(self, line):
-        transaction = statement.StatementLine()
+        transaction = StatementLine()
 
         if not self.statement.account_id:
-            self.statement.account_id = line['acc']
+            self.statement.account_id = line["acc"]
 
         if not self.statement.currency:
-            self.statement.currency = line['currency']
+            self.statement.currency = line["currency"]
 
-        if not line['currency'] == self.statement.currency:
-            print("Transaction %s currency '%s' differ from account currency '%s'." % (
-                line['op_time'], line['currency'], self.statement.currency))
+        if not line["currency"] == self.statement.currency:
+            print(
+                "Transaction %s currency '%s' differ from account currency '%s'."
+                % (line["op_time"], line["currency"], self.statement.currency)
+            )
             return None
 
-        transaction.date = self.parse_datetime(line['op_time'])
-        date_user = self.try_find_user_date(line['description'])
+        transaction.date = self.parse_datetime(line["op_time"])
+        date_user = self.try_find_user_date(line["description"])
 
         if self.user_date and date_user:
             transaction.date = self.parse_datetime(date_user)
 
-        transaction.amount = self.get_amount(line['income'], line['withdraw'])
+        transaction.amount = self.get_amount(line["income"], line["withdraw"])
 
-        transaction.trntype = parse_type(line['description'], transaction.amount)
-        transaction.refnum = line['refnum']
+        transaction.trntype = parse_type(line["description"], transaction.amount)
+        transaction.refnum = line["refnum"]
 
-        transaction.memo = line['description']
+        transaction.memo = line["description"]
 
         if transaction.trntype:
             return transaction
@@ -98,8 +107,8 @@ class AlfabankStatementParser(StatementParser):
             return None
 
     def get_amount(self, income, withdraw):
-        income_val = Decimal(income.replace(',', '.'))
-        withdraw_val = Decimal(withdraw.replace(',', '.'))
+        income_val = Decimal(income.replace(",", "."))
+        withdraw_val = Decimal(withdraw.replace(",", "."))
         if income_val == 0:
             return -withdraw_val
         else:
@@ -107,8 +116,8 @@ class AlfabankStatementParser(StatementParser):
 
     @staticmethod
     def try_find_user_date(param):
-        date_pattern = '\\d{2}\\.\\d{2}\\.\\d{2}'
-        m = re.search('{0} ({0})'.format(date_pattern), param)
+        date_pattern = "\\d{2}\\.\\d{2}\\.\\d{2}"
+        m = re.search("{0} ({0})".format(date_pattern), param)
         if m:
             return m.group(1)
         else:
@@ -116,14 +125,15 @@ class AlfabankStatementParser(StatementParser):
 
 
 class AlfabankPlugin(Plugin):
-    """AlfaBank CSV (https://www.alfabank.ru)
-    """
+    """AlfaBank CSV (https://www.alfabank.ru)"""
 
     def get_parser(self, fin):
-        f = open(fin, 'r', encoding=self.settings.get('file_encoding', default_encoding))
+        f = open(
+            fin, "r", encoding=self.settings.get("file_encoding", default_encoding)
+        )
         parser = AlfabankStatementParser(f)
-        parser.statement.currency = self.settings.get('currency')
-        parser.statement.account_id = self.settings.get('account')
-        parser.statement.bank_id = self.settings.get('bank', 'Alfabank')
-        parser.user_date = self.settings.get('user_date', 'true') == 'true'
+        parser.statement.currency = self.settings.get("currency")
+        parser.statement.account_id = self.settings.get("account")
+        parser.statement.bank_id = self.settings.get("bank", "Alfabank")
+        parser.user_date = self.settings.get("user_date", "true") == "true"
         return parser

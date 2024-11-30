@@ -26,24 +26,37 @@ from ofxstatement import statement
 
 
 # file format options
-t_delimiter = ';'
-t_time_format = '%d.%m.%Y %H:%M:%S'
-t_encoding = 'cp1251'
-t_fieldnames = ['op_time', 'tr_time', 'card', 'status', 'op_amount', 'op_currency', 'amount',
-                'currency', 'cashback', 'category', 'MCC', 'description', 'bonus']
+t_delimiter = ";"
+t_time_format = "%d.%m.%Y %H:%M:%S"
+t_encoding = "cp1251"
+t_fieldnames = [
+    "op_time",
+    "tr_time",
+    "card",
+    "status",
+    "op_amount",
+    "op_currency",
+    "amount",
+    "currency",
+    "cashback",
+    "category",
+    "MCC",
+    "description",
+    "bonus",
+]
 t_type_map = {
-    u"Капитализация": 'DIV',
-    u"Вознаграждение за операции покупок": 'DIV',
-    u"Пополнение. Тинькофф Банк. Бонус": 'DIV',
-    u"Проценты на остаток по счету": 'DIV',
-    u"Плата за обслуживание": 'SRVCHG',
-    u"Комиссия за выдачу наличных": 'SRVCHG',
-    u"Снятие наличных": 'ATM',
-    u"Пополнение": 'XFER',
-    u"На счет в другом банке": 'XFER',
-    u"Перевод c карты другого банка": 'XFER',
-    u"Изъятие вклада при закрытии.": 'XFER',
-    u"Внешний банковский перевод": 'XFER',
+    "Капитализация": "DIV",
+    "Вознаграждение за операции покупок": "DIV",
+    "Пополнение. Тинькофф Банк. Бонус": "DIV",
+    "Проценты на остаток по счету": "DIV",
+    "Плата за обслуживание": "SRVCHG",
+    "Комиссия за выдачу наличных": "SRVCHG",
+    "Снятие наличных": "ATM",
+    "Пополнение": "XFER",
+    "На счет в другом банке": "XFER",
+    "Перевод c карты другого банка": "XFER",
+    "Изъятие вклада при закрытии.": "XFER",
+    "Внешний банковский перевод": "XFER",
 }
 
 
@@ -55,9 +68,9 @@ def parse_type(type, amount):
     result = None
 
     if amount > 0:
-        result = 'DEBIT'
+        result = "DEBIT"
     elif amount < 0:
-        result = 'CREDIT'
+        result = "CREDIT"
 
     # print("Unknown type \"%s\", consider %s"%(type, result))
     return result
@@ -80,29 +93,33 @@ class TinkoffStatementParser(StatementParser):
     def parse_record(self, line):
         transaction = statement.StatementLine()
 
-        if not line['status'] == 'OK':
-            print("Notice: Skipping line %d: Transaction time %s status is %s." % (
-                self.cur_record, line['op_time'], line['status']))
+        if not line["status"] == "OK":
+            print(
+                "Notice: Skipping line %d: Transaction time %s status is %s."
+                % (self.cur_record, line["op_time"], line["status"])
+            )
             return None
 
         if not self.statement.currency:
-            self.statement.currency = line['currency']
+            self.statement.currency = line["currency"]
 
-        if not line['currency'] == self.statement.currency:
-            print("Transaction %s currency '%s' differ from account currency '%s'." % (
-                line['op_time'], line['currency'], self.statement.currency))
+        if not line["currency"] == self.statement.currency:
+            print(
+                "Transaction %s currency '%s' differ from account currency '%s'."
+                % (line["op_time"], line["currency"], self.statement.currency)
+            )
             return None
 
-        transaction.date = datetime.strptime(line['op_time'], t_time_format)
+        transaction.date = datetime.strptime(line["op_time"], t_time_format)
 
-        transaction.amount = Decimal(line['amount'].replace(',', '.'))
+        transaction.amount = Decimal(line["amount"].replace(",", "."))
 
-        transaction.trntype = parse_type(line['description'], transaction.amount)
+        transaction.trntype = parse_type(line["description"], transaction.amount)
 
-        transaction.memo = "%s: %s" % (line['category'], line['description'])
+        transaction.memo = "%s: %s" % (line["category"], line["description"])
 
-        self._append_to_memo(transaction, line, 'MCC')
-        self._append_to_memo(transaction, line, 'card')
+        self._append_to_memo(transaction, line, "MCC")
+        self._append_to_memo(transaction, line, "card")
 
         # as csv file does not contain explicit id of transaction, generating artificial one
         transaction.id = statement.generate_transaction_id(transaction)
@@ -118,15 +135,13 @@ class TinkoffStatementParser(StatementParser):
             transaction.memo = "%s, %s" % (transaction.memo, line[field])
 
 
-
 class TinkoffPlugin(Plugin):
-    """Tinkoff Bank CSV (http://tinkoff.ru)
-    """
+    """Tinkoff Bank CSV (http://tinkoff.ru)"""
 
     def get_parser(self, fin):
-        f = open(fin, 'r', encoding=t_encoding)
+        f = open(fin, "r", encoding=t_encoding)
         parser = TinkoffStatementParser(f)
-        parser.statement.currency = self.settings.get('currency')
-        parser.statement.account_id = self.settings['account']
-        parser.statement.bank_id = self.settings.get('bank', 'Tinkoff')
+        parser.statement.currency = self.settings.get("currency")
+        parser.statement.account_id = self.settings["account"]
+        parser.statement.bank_id = self.settings.get("bank", "Tinkoff")
         return parser

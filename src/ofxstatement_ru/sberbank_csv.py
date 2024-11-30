@@ -25,11 +25,23 @@ from ofxstatement import statement
 from datetime import datetime
 
 # file format options
-SB_DELIMITER = ';'
-SD_TIME_FORMAT = '%d.%m.%Y'
-SD_ENCODING = 'utf-8'
-SB_FIELDNAMES = ['card_type', 'card_num', 'date_user', 'date', 'auth_code', 'op_type', 'op_city',
-                 'op_country', 'description', 'currency', 'currency_amount', 'amount']
+SB_DELIMITER = ";"
+SD_TIME_FORMAT = "%d.%m.%Y"
+SD_ENCODING = "utf-8"
+SB_FIELDNAMES = [
+    "card_type",
+    "card_num",
+    "date_user",
+    "date",
+    "auth_code",
+    "op_type",
+    "op_city",
+    "op_country",
+    "description",
+    "currency",
+    "currency_amount",
+    "amount",
+]
 
 
 class SberBankCSVStatementParser(StatementParser):
@@ -44,23 +56,30 @@ class SberBankCSVStatementParser(StatementParser):
         self.cur_record = 1
 
     def split_records(self):
-        return csv.DictReader(self.fin, delimiter=SB_DELIMITER, fieldnames=SB_FIELDNAMES)
+        return csv.DictReader(
+            self.fin, delimiter=SB_DELIMITER, fieldnames=SB_FIELDNAMES
+        )
 
     def parse_record(self, line):
         transaction = statement.StatementLine()
 
         if not self.statement.account_id:
-            self.statement.account_id = '{} {}'.format(line['card_type'], line['card_num'])
+            self.statement.account_id = "{} {}".format(
+                line["card_type"], line["card_num"]
+            )
 
-        transaction.date = datetime.strptime(line['date'], SD_TIME_FORMAT)
-        transaction.date_user = datetime.strptime(line['date_user'], SD_TIME_FORMAT)
+        transaction.date = datetime.strptime(line["date"], SD_TIME_FORMAT)
+        transaction.date_user = datetime.strptime(line["date_user"], SD_TIME_FORMAT)
 
-        transaction.amount = Decimal(line['amount'].replace(',', '.'))
+        transaction.amount = Decimal(line["amount"].replace(",", "."))
 
-        transaction.trntype = 'DEBIT' if transaction.amount > 0 else 'CREDIT'
+        transaction.trntype = "DEBIT" if transaction.amount > 0 else "CREDIT"
 
-        transaction.memo = ', '.join(line[f] for f in
-                                     ('description', 'op_city', 'op_country', 'op_type') if line[f])
+        transaction.memo = ", ".join(
+            line[f]
+            for f in ("description", "op_city", "op_country", "op_type")
+            if line[f]
+        )
 
         # as csv file does not contain explicit id of transaction, generating artificial one
         transaction.id = statement.generate_transaction_id(transaction)
@@ -69,13 +88,12 @@ class SberBankCSVStatementParser(StatementParser):
 
 
 class SberBankCSVPlugin(Plugin):
-    """SberBank CSV (http://sberbank.ru)
-    """
+    """SberBank CSV (http://sberbank.ru)"""
 
     def get_parser(self, fin):
-        f = open(fin, 'r', encoding=SD_ENCODING)
+        f = open(fin, "r", encoding=SD_ENCODING)
         parser = SberBankCSVStatementParser(f)
-        parser.statement.currency = self.settings.get('currency')
-        parser.statement.account_id = self.settings.get('account')
-        parser.statement.bank_id = self.settings.get('bank', 'SberBank')
+        parser.statement.currency = self.settings.get("currency")
+        parser.statement.account_id = self.settings.get("account")
+        parser.statement.bank_id = self.settings.get("bank", "SberBank")
         return parser
