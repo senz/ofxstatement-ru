@@ -34,27 +34,27 @@ Tinkoff
 CSV statement for credit, debit and saving account.
 
 SberBankCSV
---------
+-----------
 
 CSV statement (available via "request statement by e-mail as Excel sheet" function).
 
 SberBankTxt
---------
+-----------
 
 Legacy TXT statement (available via "request statement by e-mail" function) for debit card.
 
 AlfaBank
--------
+--------
 
 CSV statement for current account.
 
 VTB
--------
+---
 
 CSV statement for debit card.
 
 Raiffeisen
--------
+----------
 
 CSV statemenr for account.
 Basic support for DEBIT and CREDIT transactions.
@@ -91,7 +91,7 @@ currency
         (if not set, will be extracted from the first record)
 
 sberbank_txt
---------
+------------
 
 bank
         Bank id
@@ -129,7 +129,7 @@ file_encoding
         but could be handy in case of some file processing that involves encoding change
 
 vtb
---------
+---
 
 bank
         Bank id
@@ -140,7 +140,7 @@ user_date
         rather then record date.
 
 raiffeisen
---------
+----------
 
 bank
         Bank id
@@ -186,3 +186,4 @@ Authors
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3 as
 published by the Free Software Foundation.
+pip install restructuredtext-lint
