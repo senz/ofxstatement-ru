@@ -55,8 +55,9 @@ CSV statement for debit card.
 
 Raiffeisen
 -------
-TODO: Add description
 
+CSV statemenr for account.
+Basic support for DEBIT and CREDIT transactions.
 
 Plugin configuration parameters
 ===============================
@@ -140,7 +141,17 @@ user_date
 
 raiffeisen
 --------
-TODO: Add description
+
+bank
+        Bank id
+        (default is 'Raiffeisen')
+
+account
+        Account id
+
+currency
+        Currency
+        
 
 Development
 ===========
@@ -148,18 +159,20 @@ Development
 Project is targeting python 3 (3.9 for sure as current widespread version) and
 pytest is used for testing.
 
-Development setup is simple:
+Recommended way to setup is with DevContainer in VSCode.
+
+Manual development setup is as follows:
 
 1. Create virtual environment and activate it
 .. code-block:: bash
 
-    pipenv sync --dev
-    pipenv shell
+    make install
+    poetry shell
 
 2. Run tests using pytest
 .. code-block:: bash
 
-    pytest
+    make test
 
 
 
