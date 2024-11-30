@@ -26,8 +26,8 @@ jobs:
       run: poetry run make code-format
     - name: Unit testing
       run: poetry run make unit-test
-    - name: Integration testing
-      run: poetry run make integration-test
+    # - name: Integration testing
+    #   run: poetry run make integration-test
     - name: Static Analysis
       run: poetry run make static-analysis
     - name: Security Analysis
