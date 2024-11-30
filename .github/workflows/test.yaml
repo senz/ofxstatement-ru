@@ -23,15 +23,15 @@ jobs:
         python -m pip install coveralls poetry
         make install
     - name: Code formatting
-      run: make code-format
+      run: poetry run make code-format
     - name: Unit testing
-      run: make unit-test
+      run: poetry run make unit-test
     - name: Integration testing
-      run: make integration-test
+      run: poetry run make integration-test
     - name: Static Analysis
-      run: make static-analysis
+      run: poetry run make static-analysis
     - name: Security Analysis
-      run: make security-analysis
+      run: poetry run make security-analysis
     - name: Coveralls
       if: ${{ success() }}
       env:
