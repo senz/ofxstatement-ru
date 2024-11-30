@@ -63,7 +63,7 @@ build = "~1.2.1"
 black = "*"
 pylint = "*"
 [tool.poetry.extras]
-dev = ["pytest", "pytest-cov", "prospector", "bandit", "setuptools", "build", "black", "pylint"]
+dev = ["pytest", "pytest-cov", "prospector", "bandit", "setuptools", "build", "black", "pylint", "restructuredtext-lint"]
 [tool.poetry.plugins."ofxstatement"]
 alfabank = "ofxstatement_ru.alfabank:AlfabankPlugin"
 avangard = "ofxstatement_ru.avangard:AvangardPlugin"
@@ -75,6 +75,7 @@ vtb = "ofxstatement_ru.vtb:VtbPlugin"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^3.3.1"
+restructuredtext-lint = "^1.4.0"
 
 [tool.poetry-dynamic-versioning]
 enable = true

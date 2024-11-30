@@ -35,6 +35,7 @@ code-format:
 .PHONY: static-analysis # Runs static analysis
 static-analysis:
 	@prospector --profile ./prospector.yaml src
+	@rst-lint .
 
 .PHONY: security-analysis # Runs security analysis looking for vulnerabilities in code; required arguments:~file=[file path]: the file to analyze
 security-analysis:
